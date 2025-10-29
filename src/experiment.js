@@ -22,7 +22,7 @@ args.condition = jsPsych.randomization.repeat(streakType, 1);
 const multiplierArray1 = makeMultipliers(args.condition[0], pM);
 const multiplierArray2 = makeMultipliers(args.condition[1], pM);
 args.multiplierArray = multiplierArray1.concat(multiplierArray2);
-let sona_id = jsPsych.data.getURLVariable("id");
+let sona_id = jsPsych.data.getURLVariable("PROLIFIC_PID");
 if (!sona_id) { sona_id = 0}
 
 jsPsych.data.addProperties({
@@ -238,11 +238,7 @@ jsPsych.opts.show_progress_bar = args.show_progress_bar;
 // $('div#jspsych-content').css({max-width: `${args.screenwidth} px`}); can achieve similar result
 jsPsych.opts.experiment_width = args.screenwidth;
 jsPsych.opts.on_finish = () => {
-  document.body.innerHTML = `
-    <div style="font-size:20px; text-align:center; padding:40px;">
-      <p>Please enter the following completion code to receive payment:</p>
-      <p style="font-weight:bold; font-size:24px; margin-top:20px;">19620</p>
-    </div>
-  `;
+    document.body.innerHTML = `<div align='center' style="margin: 10%"><p>Thank you!</p><p>Please wait to be redirected to Prolific.</p></div>`;
+    setTimeout(() => { location.href = `https://app.prolific.co/submissions/complete?cc=C1B3XSBB`; }, 3000);
 }
 jsPsych.run(timeline);

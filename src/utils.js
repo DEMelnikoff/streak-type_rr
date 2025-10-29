@@ -261,7 +261,7 @@ export function exportData(data) {
   const r_prac = getRecord(data, 'practice', 'practice');
   const r_bonus = getRecord(data, 'bonus', 'round');
   const [{gender, age, suggest}] = data.filter({trial_type: 'survey-demo'}).select('responses').values;
-  const [{date, subject_id: id, condition: cond, sona_id: sona_id, response: {email: email}, totalSuccess, totalSuccess_1, totalSuccess_2, totalBonus_1, totalBonus_2, totalThrees_1, totalThrees_2, totalBonus, game_1, game_2}] = data.last().values();
+  const [{date, subject_id, hit_rate, sona_id, response: {email: email}, totalSuccess, totalSuccess_1, totalSuccess_2, totalBonus_1, totalBonus_2, totalThrees_1, totalThrees_2, totalBonus, game_1, game_2}] = data.last().values();
   
   const {absorbed_first, immersed_first, engaged_first, engrossed_first} = data.filter({trial_type: 'survey-likert'}).select('response').values[0];
   const {enjoyable_first, like_first, dislike_first, fun_first, entertaining_first} = data.filter({trial_type: 'survey-likert'}).select('response').values[1];
@@ -274,7 +274,7 @@ export function exportData(data) {
   const {control_1, control_2, control_3} = data.filter({trial_type: 'survey-likert'}).select('response').values[6];
 
   return {
-    subject_id: id,
+    subject_id: subject_id,
     sona_id: sona_id,
     email: email,
     date: getDate(date),
