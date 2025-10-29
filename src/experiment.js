@@ -6,7 +6,6 @@ import jsPsychSurveyLikert from '@jspsych/plugin-survey-likert';
 import jsPsychSurveyMultiChoice from '@jspsych/plugin-survey-multi-choice'; 
 //test 2
 
-
 import { readYaml, checkEmpty, fullScreenHandler, exportData, JSON2CSV, makeMultipliers } from "./utils";
 import {practicePhase, renderPlugin, bonusInstruction, bonusPhase, DICT} from "./jspsych-typing";
 
