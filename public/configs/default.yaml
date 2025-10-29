@@ -40,8 +40,8 @@ thank_you_msg: >
       <p>Thank you for participating!</p>
       <p>In total, you won <b>$${totalBonus}</b> tokens!</p>
       <br>
-      <p>Within one week, you'll find out if you won the $100.00 bonus. If you win, you'll receive your bonus by email in the form of an electronic Amazon gift card.</p>
-      <b>Please wait to be re-directed to Sona Systems.</b>
+      <p>Within one week, you'll find out if you won the $100.00 bonus.</p>
+      <b>Please wait to be re-directed to Prolific.</b>
   </div>
 
 # ========= stimulus simulation =================================================
@@ -421,9 +421,8 @@ debrief_page: &debrief >
   <p>Thank you for participating!</p>
   <p>In total, you won <b>${totalBonus}</b> tokens!</p>
   <br>
-  <p>Within one week, you'll find out if you won the $100.00 bonus.<br>If you win, you'll receive your bonus by email in the form of an electronic Amazon gift card.</p>
-  <p>To receive payment, please enter your email address in the space below,<br>
-  then proceed to get your completion code.</p>
+  <p>Within one week, you'll find out if you won the $100.00 bonus.</p>
+  <p>To receive payment, please enter your Prolific PID in the space below, then continue and <strong>wait to be redirected to Prolific</strong>.</p>
 
 debrief:
   type: survey
@@ -435,7 +434,7 @@ lastpage:
   type: text
   questions:
     - prompt: ""
-      placeholder: email address
+      placeholder: pid
       name: "email"
       columns: 80
       required: true
