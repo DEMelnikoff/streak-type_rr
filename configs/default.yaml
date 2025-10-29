@@ -421,8 +421,7 @@ debrief_page: &debrief >
   <p>Thank you for participating!</p>
   <p>In total, you won <b>${totalBonus}</b> tokens!</p>
   <br>
-  <p>Within one week, you'll find out if you won the $100.00 bonus.</p>
-  <p>To receive payment, please enter your Prolific PID in the space below, then continue and <strong>wait to be redirected to Prolific</strong>.</p>
+  <p>Within one week, you'll find out if you won the $100.00 bonus. To receive payment, please enter your Prolific PID in the space below, then continue and <strong>wait to be redirected to Prolific</strong>.</p>
 
 debrief:
   type: survey
