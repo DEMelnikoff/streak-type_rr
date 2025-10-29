@@ -278,6 +278,7 @@ export function exportData(data) {
     sona_id: sona_id,
     email: email,
     date: getDate(date),
+    hit_rate: hit_rate,
     game_1: game_1,
     game_2: game_2,
     ...r_prac,
