@@ -262,10 +262,16 @@ export function exportData(data) {
   const r_bonus = getRecord(data, 'bonus', 'round');
   const [{gender, age, suggest}] = data.filter({trial_type: 'survey-demo'}).select('responses').values;
   const [{date, subject_id: id, condition: cond, sona_id: sona_id, response: {email: email}, totalSuccess, totalSuccess_1, totalSuccess_2, totalBonus_1, totalBonus_2, totalThrees_1, totalThrees_2, totalBonus, game_1, game_2}] = data.last().values();
+  
   const {absorbed_first, immersed_first, engaged_first, engrossed_first} = data.filter({trial_type: 'survey-likert'}).select('response').values[0];
   const {enjoyable_first, like_first, dislike_first, fun_first, entertaining_first} = data.filter({trial_type: 'survey-likert'}).select('response').values[1];
-  const {absorbed_second, immersed_second, engaged_second, engrossed_second} = data.filter({trial_type: 'survey-likert'}).select('response').values[2];
-  const {enjoyable_second, like_second, dislike_second, fun_second, entertaining_second} = data.filter({trial_type: 'survey-likert'}).select('response').values[3];
+  const {anxious_first, stressed_first, onEdge_first} = data.filter({trial_type: 'survey-likert'}).select('response').values[2];
+
+  const {absorbed_second, immersed_second, engaged_second, engrossed_second} = data.filter({trial_type: 'survey-likert'}).select('response').values[3];
+  const {enjoyable_second, like_second, dislike_second, fun_second, entertaining_second} = data.filter({trial_type: 'survey-likert'}).select('response').values[4];
+  const {anxious_second, stressed_second, onEdge_second} = data.filter({trial_type: 'survey-likert'}).select('response').values[5];
+
+  const {control_1, control_2, control_3} = data.filter({trial_type: 'survey-likert'}).select('response').values[6];
 
   return {
     subject_id: id,
@@ -296,6 +302,9 @@ export function exportData(data) {
     dislike_1: dislike_first,
     fun_1: fun_first,
     entertaining_1: entertaining_first,
+    anxious_1: anxious_first,
+    stressed_1: stressed_first,
+    onEdge_1: onEdge_first,
     absorbed_2: absorbed_second,
     immersed_2: immersed_second,
     engrossed_2: engrossed_second,
@@ -305,6 +314,12 @@ export function exportData(data) {
     dislike_2: dislike_second,
     fun_2: fun_second,
     entertaining_2: entertaining_second,
+    anxious_2: anxious_second,
+    stressed_2: stressed_second,
+    onEdge_2: onEdge_second,
+    control_1: control_1,
+    control_2: control_2,
+    control_3: control_3,
   }
 };
 

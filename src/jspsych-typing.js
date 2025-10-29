@@ -117,9 +117,9 @@ export function bonusInstruction({
 
     let correct = false;
     const pages = [];
-    const numTokens = (pM == .2) ? "1 token" : "4 tokens";
-    const tokenEquation = (pM == .2) ? "25 - 1 = 24 tokens" : "25 - 4 = 21 tokens";
-    const earningsExample = (pM == .2) ? "24 tokens" : "21 tokens";
+    const numTokens = (pM == .2) ? "2 tokens" : (pM == .5) ? "5 tokens" : "8 tokens";
+    const tokenEquation = (pM == .2) ? "30 - 2 = 28 tokens" : (pM == .5) ? "30 - 5 = 25 tokens" : "30 - 8 = 22 tokens";
+    const earningsExample = (pM == .2) ? "28 tokens" : (pM == .5) ? "25 tokens" : "22 tokens";
     const instruction_tokenAdjustment = (condition == "inverse streak") ? instruction[condition].replaceAll('{tokens}', numTokens) : instruction[condition];
     const page_1 = instruction.title.replaceAll('${instruction_by_group}', instruction_tokenAdjustment);
     const page_2 = instruction.info.replaceAll('${instruction_by_group}', instruction_tokenAdjustment);
@@ -199,7 +199,7 @@ export function bonusInstruction({
             <p>You reached the target score!</p>Current Streak: 3
         </div>`;
 
-    const page_success_iStrk = `<div><p class=instruction-title>Then you'll see that you won 25 tokens minus ${numTokens} for each attempt.<br>For example, if you reach the target score on your 1st attempt,<br>you'll see that you won ${tokenEquation}:</p></div>
+    const page_success_iStrk = `<div><p class=instruction-title>Then you'll see that you won 30 tokens minus ${numTokens} for each attempt.<br>For example, if you reach the target score on your 1st attempt,<br>you'll see that you won ${tokenEquation}:</p></div>
         <div class="bonus-1" style="margin: 40px 0px">
             <div class="feedback-container">
                 <img src="https://raw.githubusercontent.com/dennislx/jspsych-typing/main/public/img/coins.jpg">
@@ -225,9 +225,9 @@ export function bonusInstruction({
             </div>
         </div>`];
 
-    let easyOrHard = (pM == .8) ? 'relatively easy' : 'relatively difficult';
+    let easyOrHard = (pM == .8) ? 'relatively easy' : (pM == .2) ? 'relatively difficult' : 'neither particularly easy nor particularly difficult';
 
-    let hitRate = (pM == .8) ? '80%' : '20%';
+    let hitRate = (pM == .8) ? '80%' : (pM == .2) ? '20%' : '50%';
 
     const page_pM = [`<div><p class=instruction-title>The typing task is calibrated to be <b>${easyOrHard}</b>.<br>Specifically, most players reach the target score approximately <b>${hitRate}</b> of the time.</p></div>`];
 
@@ -290,8 +290,8 @@ export function bonusInstruction({
             if (condition == 'inverse streak') {
                 data.pass = correct = [
                     Q0.includes("At least"),
-                    Q1.startsWith(pM == .2 ? '25 - 1 = 24 tokens' : '25 - 4 = 21 tokens'),
-                    Q2.startsWith(pM == .2 ? '25 - 5 = 20 tokens' : '25 - 20 = 5 tokens'),
+                    Q1.startsWith(pM == .2 ? '30 - 2 = 28 tokens' : (pM == .5) ? '30 - 5 = 25 tokens' : '30 - 8 = 22 tokens'),
+                    Q2.startsWith(pM == .2 ? '30 - 6 = 24 tokens' : (pM == .5) ? '30 - 15 = 15 tokens' : '30 - 24 = 6 tokens'),
                     Q3.startsWith(hitRate)
                 ].every(Boolean)
             } else {
@@ -534,27 +534,80 @@ export class bonusPhase extends practicePhase {
                 keypressCallback(info, response, trial, response_history, counter, display_html, end_trial);
 
                 // draw delta on first click
-                if (response.typed == 1) { this.delta = 1 + Math.floor(Math.random() * 10 ) };
-
-                // make multiplier = 1 when score < delta and randomly draw new multiplier when score surpasses delta
-                if (response.score <= this.delta) { 
-                    this.multiplier = 1;
-                } else if (response.score == this.delta + 1) {                    
-                    this.multiplier = this.multiplierArray[this.trial_i - 1];
+                if (response.typed == 1) { 
+                    this.delta = 1 + Math.floor(Math.random() * 10 ) 
                 };
 
-                // compute new target score and, if true_random = true, make it the real target score 
-                let targetScore = response.score + (this.multiplier * this.delta);
-                if (this.true_random) { trial.data.target = targetScore };
-                //if (this.trial_i == this.numOfTrial) { trial.data.target = response.score + this.delta }; // lose on last trial
+                // Helpers to scope to current 20-trial block
+                const T = 20;
+                const blockIndex = Math.floor((this.trial_i - 1) / T);
+                const blockStart = blockIndex * T;
 
-                //console.log(`Trial Number = ${this.trial_i}`);
+                // Slice out just the scores/wins from the current block
+                // Important: jsPsych stores values in trial order, so slice is safe
+                let score_array = jsPsych.data.get().filter({phase: 'bonus'}).select('score').values;
+                let win_array = jsPsych.data.get().filter({phase: 'bonus'}).select('success').values;
+                score_array = score_array.slice(blockStart, this.trial_i - 1);
+                win_array   = win_array.slice(blockStart, this.trial_i - 1);
+                
+                const wins_so_far = win_array.filter(Boolean).length;
+
+                // Percentile F among past in this block
+                let F;
+                if (score_array.length === 0) {
+                  F = 0.5;
+                } else {
+                  const lessEqual = score_array.filter(v => v <= response.score).length;
+                  F = (lessEqual - 0.5) / score_array.length;
+                  F = Math.max(0, Math.min(1, F));
+                }
+
+                // Target wins for this block
+                const target_wins = (this.condition === "continuous streak")
+                  ? Math.round(this.pM * T)
+                  : Math.round(this.pM * T) - 1;
+
+                const trial_num   = (this.trial_i % T) || T; // 1..20 within block
+                const trials_left = T - trial_num;
+
+                // Wins still needed
+                let wins_needed = target_wins - wins_so_far;
+
+                // Decide win deterministically
+                let win;
+
+                // Force guards FIRST to avoid /0 and NaNs
+                if (wins_needed <= 0) {
+                  win = false; // quota met → remaining are losses
+                } else if (wins_needed >= trials_left) {
+                  win = true;  // must accept all remaining
+                } else {
+                  // Rolling-quota threshold
+                  const accept_frac = Math.max(0, Math.min(1, wins_needed / trials_left));
+                  const threshold   = Math.max(0, Math.min(1, 1 - accept_frac));
+                  win = (trial_num === 1) ? Math.random() < this.pM : (F >= threshold);
+                }
+
+                let targetScore;
+
+                if (trial_num == 20) {
+                    targetScore = (this.condition == "continuous streak") ? response.score + this.delta : response.score - this.delta;
+                } else if (response.score < 30) {
+                    targetScore = 45 + Math.floor(Math.random() * 20);
+                } else {
+                    targetScore = win ? response.score - this.delta : response.score + this.delta;
+                };
+
+
+                if (this.true_random) { trial.data.target = targetScore };
 
                 if (response.score >= trial.data.target) {
-                    //console.log("Success!")
                     trial.data.success = true;
                     this.early_stop && end_trial(trial.data);
-                }
+                } else {
+                    trial.data.success = false;
+                };
+
             }, 
             accept_allkeys: true, 
         });
@@ -687,8 +740,8 @@ class InverseStreak extends Binary {
         };
     }
     score(succcess, pM){
-        let costPerMiss = (pM == .2) ? 1 : 4
-        let invStrkScore = succcess ? 25 - (this.streak_sofar*costPerMiss + costPerMiss) : 0;
+        let costPerMiss = (pM == .2) ? 2 : (pM == .5) ? 5 : 8;
+        let invStrkScore = succcess ? 30 - (this.streak_sofar*costPerMiss + costPerMiss) : 0;
         return (invStrkScore < 0) ? 0 : invStrkScore;
     }
 }
